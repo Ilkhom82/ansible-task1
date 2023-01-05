@@ -1,34 +1,38 @@
-- hosts: all
+---
+- name: Install melodi
+  hosts: all
+
   tasks:
-    - name: Install Apache
-      yum:
-        name: httpd
-        state: latest 
+  - name: install prerequisites
+    package:
+      name:
+      - wget
+      - vim
+      - git
+      state: present
 
-    - name: Make sure a service is running
-      systemd:
-        state: started
-        enabled: yes
-        name: httpd
-  
-    - name: install unzip
-      yum:
-        name: unzip
-        state: latest 
+  - name: install apache
+    package:
+      name: httpd
+      state: present
 
-    - name: Unarchive a file that needs to be downloaded 
-      unarchive:
-        src:  https://www.free-css.com/assets/files/free-css-templates/download/page283/ninom.zip
-        dest: /tmp
-        remote_src: yes
+  - name: start httpd
+    systemd:
+      name: httpd
+      state: started
+      enabled: yes
 
-    - name: Copy files 
-      copy:
-        src: /tmp/ninom-html/
-        dest: /var/www/html/
-        remote_src: yes 
+  - name: pull melodi
+    git:
+      repo: "{{ melodi_repo }}"
+      version: "{{ melodi_branch }}"
+      dest: /var/www/html/
+      force: yes
 
-    - name: Restart service httpd, in all cases
-      service:
-        name: httpd
-        state: restarted
+  - name: recursively change ownership of a directory
+    file:
+      path: /var/www/html
+      state: directory
+      recurse: yes
+      owner: apache
+      group: apache
