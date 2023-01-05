@@ -2,14 +2,6 @@
 - name: Install melodi
   hosts: all
 
-  tasks:
-  - name: install prerequisites
-    package:
-      name:
-      - wget
-      - vim
-      - git
-      state: present
 
   - name: install apache
     package:
@@ -22,17 +14,5 @@
       state: started
       enabled: yes
 
-  - name: pull melodi
-    git:
-      repo: "{{ melodi_repo }}"
-      version: "{{ melodi_branch }}"
-      dest: /var/www/html/
-      force: yes
-
-  - name: recursively change ownership of a directory
-    file:
-      path: /var/www/html
-      state: directory
-      recurse: yes
-      owner: apache
-      group: apache
+  
+    
